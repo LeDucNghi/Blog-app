@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
+import { AuthContext } from "../helpers/AuthContext";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
 function Post() {
   const { id } = useParams();
+  const { auth } = useContext(AuthContext);
 
   const [comment, setComment] = useState("");
   const [postDetail, setPostDetail] = useState(null);
@@ -54,13 +56,42 @@ function Post() {
       } else {
         console.log("post success🥳");
 
-        const newCommentsList = await [body, ...postComments];
+        const newCommentsList = await [
+          { ...body, username: res.data.username },
+          ...postComments,
+        ];
 
         await setPostComments(newCommentsList);
         await setComment("");
       }
     } catch (error) {
       console.log("🚀 ~ file: Post.js:50 ~ handlePostComments ~ error", error);
+    }
+  };
+
+  const handleDeleteComment = async (id) => {
+    try {
+      const res = await axios.delete(`http://localhost:3001/comments/${id}`, {
+        headers: {
+          accessToken: localStorage.getItem("accessToken"),
+        },
+      });
+      console.log("🚀 ~ file: Post.js:76 ~ handleDeleteComment ~ res", res);
+      if (res.data.error) console.log("something went wrong!");
+      else {
+        // const index = await postComments.findIndex((el) => el.id === id);
+
+        // const newCommentsList = await postComments.splice(index, 1);
+        // await setPostComments(newCommentsList);
+        setPostComments(
+          postComments.filter((el) => {
+            return el.id !== id;
+          })
+        );
+        console.log("delete success");
+      }
+    } catch (error) {
+      console.log("🚀 ~ file: Post.js:76 ~ handleDeleteComment ~ error", error);
     }
   };
 
@@ -97,7 +128,13 @@ function Post() {
               {postComments.map((comments, key) => {
                 return (
                   <div key={key} className="comment">
-                    {comments.commentBody}
+                    {comments.commentBody} -{" "}
+                    <label htmlFor="">By : {comments.username} </label>
+                    {auth.username === comments.username && (
+                      <button onClick={() => handleDeleteComment(comments.id)}>
+                        X
+                      </button>
+                    )}
                   </div>
                 );
               })}
