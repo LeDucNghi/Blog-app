@@ -16,10 +16,8 @@ export default function Navbar({ auth, setAuth }) {
           accessToken: localStorage.getItem("accessToken"),
         },
       });
-      console.log(
-        "🚀 ~ file: App.js:37 ~ handleCheckValidToken ~ res.data",
-        res.data
-      );
+      console.log("🚀 ~ file: Navbar.js:16 ~ handleCheckValidToken ~ res", res);
+
       if (res.data.error) setAuth({ ...auth, isLogged: false });
       else
         setAuth({
@@ -42,18 +40,20 @@ export default function Navbar({ auth, setAuth }) {
 
   return (
     <div className="navbar">
-      <Link to="/">Home</Link>
-      <Link to="/createpost">Create a post</Link>
-      {!auth.isLogged ? (
-        <>
-          <Link to="/login">Login</Link>
-          <Link to="/registration">Registration</Link>
-        </>
-      ) : (
-        <button onClick={handleLogout}>Log out</button>
-      )}
-
-      {auth.isLogged && <h3>{auth.username} </h3>}
+      <div className="links">
+        <Link to="/"> Home Page</Link>
+        <Link to="/createpost"> Create A Post</Link>
+        {!auth.isLogged && (
+          <>
+            <Link to="/login"> Login</Link>
+            <Link to="/registration"> Registration</Link>
+          </>
+        )}
+      </div>
+      <div className="loggedInContainer">
+        <h1>{auth.username} </h1>
+        {auth.isLogged && <button onClick={handleLogout}> Logout</button>}
+      </div>
     </div>
   );
 }

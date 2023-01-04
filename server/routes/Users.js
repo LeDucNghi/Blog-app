@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Users } = require("../models");
+const { Users, Posts, Likes } = require("../models");
 const bcrypt = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const { validateToken } = require("../middlewares/AuthMiddleware");
@@ -41,6 +41,23 @@ router.post("/login", async (req, res) => {
 
 router.get("/auth", validateToken, (req, res) => {
   res.json(req.user);
+});
+
+router.get("/profile/:userId", async (req, res) => {
+  const id = req.params.userId;
+
+  const profile = await Users.findByPk(id, {
+    attributes: { exclude: ["password"] },
+  });
+
+  const posts = await Posts.findAll({
+    where: { UserId: id },
+    include: [Likes],
+  });
+
+  console.log("posts & profile : ", profile, posts, id);
+
+  res.json({ profile, posts });
 });
 
 module.exports = router;
