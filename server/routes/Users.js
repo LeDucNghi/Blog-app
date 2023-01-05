@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
   //   check if user is not exist in the DB
   if (!user) res.json({ error: "User doesn't exist🤔" });
 
-  //   using bcrypt to compare to password : 1 is from user request, 2 from DB
+  //   using bcrypt to compare two password : 1 is from user request, 2 from DB
   bcrypt.compare(password, user.password).then((match) => {
     if (!match) res.json({ error: "Wrong username & password combination" });
 
@@ -58,6 +58,27 @@ router.get("/profile/:userId", async (req, res) => {
   console.log("posts & profile : ", profile, posts, id);
 
   res.json({ profile, posts });
+});
+
+router.put("/changepassword", validateToken, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await Users.findOne({ where: { username: req.user.username } });
+
+  bcrypt.compare(oldPassword, user.password).then((match) => {
+    if (!match) {
+      res.json({ error: "Your old password is not match😢" });
+      // res.status(400).json({ error: "Your old password is not match😢" });
+    } else {
+      bcrypt.hash(newPassword, 10).then((hash) => {
+        Users.update(
+          { password: hash },
+          { where: { username: req.user.username } }
+        );
+        res.status(200).json({ message: "Update successful🥳" });
+      });
+    }
+  });
 });
 
 module.exports = router;

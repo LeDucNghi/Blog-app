@@ -107,16 +107,13 @@ function Home() {
         return (
           <div className="post" key={key}>
             <div className="title">{items.title}</div>
-            <div
-              className="body"
-              onClick={() => navigate(`/post/${items.userId}`)}
-            >
+            <div className="body" onClick={() => navigate(`/post/${items.id}`)}>
               {items.postText}
             </div>
             <div className="footer">
               <div
                 className="username"
-                onClick={() => navigate(`/profile/${items.id}`)}
+                onClick={() => navigate(`/profile/${items.UserId}`)}
               >
                 {items.username}{" "}
               </div>

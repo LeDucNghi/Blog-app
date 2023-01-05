@@ -45,4 +45,26 @@ router.delete("/:postId", validateToken, async (req, res) => {
   res.json("deleted 🥳");
 });
 
+router.put("/:postId", validateToken, async (req, res) => {
+  const id = req.params.postId;
+  const { options, content } = req.body;
+  if (!options || !content) {
+    res
+      .status(400)
+      .send({ error: "Invalid options or content 😢 Please check again!" });
+  } else {
+    if (options === "title") {
+      await Posts.update({ title: content }, { where: { id: id } });
+    } else if (options === "body") {
+      await Posts.update({ postText: content }, { where: { id: id } });
+    }
+    res.status(200).send({
+      message:
+        options === "title"
+          ? "Update title successful 🥳"
+          : "Update post text successful 🥳",
+    });
+  }
+});
+
 module.exports = router;

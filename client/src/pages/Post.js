@@ -13,6 +13,12 @@ function Post() {
   const [postComments, setPostComments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const config = {
+    headers: {
+      accessToken: localStorage.getItem("accessToken"),
+    },
+  };
+
   useEffect(() => {
     handleFetchDetailPost();
   }, [id]);
@@ -46,11 +52,11 @@ function Post() {
       PostId: id,
     };
     try {
-      const res = await axios.post("http://localhost:3001/comments", body, {
-        headers: {
-          accessToken: localStorage.getItem("accessToken"),
-        },
-      });
+      const res = await axios.post(
+        "http://localhost:3001/comments",
+        body,
+        config
+      );
       if (res.data.error) {
         alert(res.data.error);
       } else {
@@ -71,11 +77,10 @@ function Post() {
 
   const handleDeleteComment = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:3001/comments/${id}`, {
-        headers: {
-          accessToken: localStorage.getItem("accessToken"),
-        },
-      });
+      const res = await axios.delete(
+        `http://localhost:3001/comments/${id}`,
+        config
+      );
       console.log("🚀 ~ file: Post.js:76 ~ handleDeleteComment ~ res", res);
       if (res.data.error) console.log("something went wrong!");
       else {
@@ -95,6 +100,42 @@ function Post() {
     }
   };
 
+  const handleEditPost = async (options) => {
+    console.log(
+      "🚀 ~ file: Post.js:105 ~ handleEditPost ~ auth.id",
+      auth.id,
+      postDetail.UserId
+    );
+    if (auth.id === postDetail.UserId) {
+      let newContent;
+      if (options === "title") {
+        newContent = await prompt("Enter new title: ");
+      } else {
+        newContent = await prompt("Enter new Text: ");
+      }
+      const body = await {
+        options: options,
+        content: newContent,
+      };
+      try {
+        const res = await axios.put(
+          `http://localhost:3001/posts/${id}`,
+          body,
+          config
+        );
+        if (res.status === 200) {
+          if (options === "title") {
+            setPostDetail({ ...postDetail, title: newContent });
+          } else {
+            setPostDetail({ ...postDetail, postText: newContent });
+          }
+        }
+      } catch (error) {
+        console.log("🚀 ~ file: Post.js:122 ~ handleEditPost ~ error", error);
+      }
+    } else alert("You are not the author so can not edit this page😢");
+  };
+
   if (isLoading) return <p>Loading...</p>;
   return (
     <>
@@ -102,8 +143,12 @@ function Post() {
         <div className="postPage">
           <div className="leftSide">
             <div className="post" id="individual">
-              <div className="title">{postDetail.title}</div>
-              <div className="body">{postDetail.postText}</div>
+              <div className="title" onClick={() => handleEditPost("title")}>
+                {postDetail.title}
+              </div>
+              <div className="body" onClick={() => handleEditPost("body")}>
+                {postDetail.postText}
+              </div>
               <div className="footer">{postDetail.username}</div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import "./App.css";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 import { AuthContext } from "./helpers/AuthContext";
+import ChangePassword from "./pages/ChangePassword";
 import CreatePost from "./pages/CreatePost";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -42,6 +43,11 @@ function App() {
                 <Route index path="/createpost" element={<CreatePost />} />
                 <Route index path="/post/:id" element={<Post />} />
                 <Route index path="/profile/:userId" element={<Profile />} />
+                <Route
+                  index
+                  path="/changepassword"
+                  element={<ChangePassword />}
+                />
               </>
             )}
             <Route index path="/login" element={<Login />} />
